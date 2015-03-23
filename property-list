@@ -1,0 +1,62 @@
+** Person/ Name
+"/type/object/name" "values" "value"/"text"
+
+** Person/ Birthday
+"/people/person/date_of_birth" "values" "value"/"text"
+
+** Person/ Place of Birth
+"/people/person/place_of_birth" "values" "text"
+
+**  Person/ Description
+"/common/topic/article" "values" "property" "/common/document/text" "values" "value"
+
+** Person/ Siblings
+"/people/person/sibling_s" "values" "property" "/people/sibling_relationship/sibling" "values" "text"
+
+** Person/ Spouses
+"/people/person/spouse_s" "values" "property"
+- "/people/marriage/from" "values" "text"
+- "/people/marriage/location_of_ceremony" "values" "text"
+- "/people/marriage/spouse" "values" "text"
+
+** Person/ Death
+
+
+** Author/Books(Title)
+"/book/author/works_written" "values" "text"
+
+** Author/ Book About the Author(Title)
+"/book/book_subject/works" "values" "text"
+
+** Author / Influenced
+"/influence/influence_node/influenced" "values" "text"
+
+** Author / Influenced by
+
+
+** BusinessPerson / Leadership
+"/business/board_member/leader_of" "values" "property"
+- "/organization/leadership/from" "values" "text"
+- "/organization/leadership/organization" "values" "text"
+- "/organization/leadership/role" "values" "text"
+- "/organization/leadership/title" "values" "text"
+- "/organization/leadership/to" "values" "text"
+
+** BusinessPerson / BoardMember
+"/business/board_member/organization_board_memberships" "values" "property"
+- "/organization/organization_board_membership/from" "values" "text"
+- "/organization/organization_board_membership/to" "values" "text"  (absence means "now")
+- "/organization/organization_board_membership/organization" "values" "text"
+- "/organization/organization_board_membership/title" "values" "text"
+- "/organization/organization_board_membership/role" "values" "text"
+
+** BusinessPerson / Founded
+"/organization/organization_founder/organizations_founded" "values" "text"
+
+** Actor/ FilmsParticipated
+"/film/actor/film" "values" "property"
+- "/film/performance/character" "values" "text"
+- "/film/performance/film" "values" "text"
+
+** League
+
