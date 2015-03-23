@@ -58,5 +58,62 @@
 - "/film/performance/character" "values" "text"
 - "/film/performance/film" "values" "text"
 
-** League
+** League/ Name
+"/type/object/name" "values" "text"/"value"
+
+** League/ Sport
+"/sports/sports_league/sport" "values" "text"
+
+** League/ Slogan
+"/organization/organization/slogan" "values" "text"/"value"
+
+** League/ OfficialWebsite
+"/common/topic/official_website" "values" "text"/"value"
+
+** League/ Championship
+"/sports/sports_league/championship" "values" "text"
+
+** League/ Teams
+"/sports/sports_league/teams" "values" "property"
+- "/sports/sports_league_participation/team" "values" "text"
+
+** League/ Description
+"/common/topic/description" "values" "value"
+
+** SportsTeam/ Name
+"/type/object/name" "values" "text"/"value"
+
+** SportsTeam/ Description
+"/common/topic/description" "values" "value"
+
+** SportsTeam/ Sport
+"/sports/sports_team/sport" "values" "text"
+
+** SportsTeam/ Championships
+"/sports/sports_team/championships" "values" "text"
+
+** SportsTeam/ Arena
+"/sports/sports_team/arena_stadium" "values" "text"
+
+** SportsTeam/ Leagues
+"/sports/sports_team/league" "values" "property"
+- "/sports/sports_league_participation/league" "values" "text"
+
+** SPortsTeam/ Locations
+"/sports/sports_team/location" "values" "text"
+
+** SportsTeam/ Coaches
+"/sports/sports_team/coaches" "values" "property"
+- "/sports/sports_team_coach_tenure/coach" "values" "text"
+- "/sports/sports_team_coach_tenure/from" "values" "text"
+- "/sports/sports_team_coach_tenure/to" "values" "text"
+- "/sports/sports_team_coach_tenure/position" "values" "text"
+
+** SportsTeam/ PlayersRoster
+"/sports/sports_team/roster" "values" "property"
+- "/sports/sports_team_roster/player" "values" "text"
+- "/sports/sports_team_roster/position" "values" "text"
+- "/sports/sports_team_roster/number" "values" "text"
+- "/sports/sports_team_roster/from" "values" "text"/"value"
+- "/sports/sports_team_roster/to" "values" "text"/"value"
 
