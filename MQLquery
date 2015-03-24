@@ -1,0 +1,19 @@
+[{
+  "/book/author/works_written": [{
+    "a:name": null,
+    "name~=": "Hobbits"
+  }],
+  "id":   null,
+  "name": null,
+  "type": "/book/author"
+}]
+
+[{
+  "/organization/organization_founder/organizations_founded": [{
+    "a:name": null,
+    "name~=": "Microsoft"
+  }],
+  "id": null,
+  "name": null,
+  "type": "/organization/organization_founder"
+}]
