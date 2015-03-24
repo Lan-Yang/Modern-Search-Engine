@@ -6,7 +6,7 @@ entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':
 # utilize search API to get 'mid'
 mid = []
 api_key = open("api_key").read()
-query = 'N.Y. Knicks'
+query = 'Bill Gates'
 search_url = 'https://www.googleapis.com/freebase/v1/search'
 params = {
         'query': query,
