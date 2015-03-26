@@ -82,7 +82,7 @@ def extract_author():
 					else:
 						book = '\t' + '|                 ' + book  
 					if len(book)>91:
-						about = about[0:91] + "..."
+						book = book[0:91] + "..."
 					whitespace = cal_whitespace(temp, book)[:-2]
 					print book + whitespace + '|' + '\t'
 
@@ -121,13 +121,13 @@ def extract_author():
 			pass
 
 def extract_actor():
-	print temp
-	print '\t' + "| Films:         |Character                              | Film Name                               |"
-	print '\t' + "|                ----------------------------------------------------------------------------------"
-
 	for property in topic['property']:
 		try:
 			if property == '/film/actor/film':
+				print temp
+				print '\t' + "| Films:         |Character                              | Film Name                               |"
+				print '\t' + "|                ----------------------------------------------------------------------------------"
+
 				for item in topic['property'][property]['values']:
 					character = item['property']['/film/performance/character']['values'][0]['text']
 					film = item['property']['/film/performance/film']['values'][0]['text']
@@ -147,10 +147,167 @@ def extract_businessperson():
 	pass
 
 def extract_league():
+
 	pass
 
 def extract_sportsteam():
-	pass
+	for property in topic['property']:
+		try:
+			if property == '/type/object/name':
+				print temp
+				name = topic['property'][property]['values'][0]['text']
+				name = '\t' + '| Name:           '  + name 
+				whitespace = cal_whitespace(temp, name)[:-2]
+				print name + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/sport':
+				print temp
+				sport = topic['property'][property]['values'][0]['text']
+				sport = '\t' + '| Sport:          ' + sport
+				whitespace = cal_whitespace(temp, sport)[:-2]
+				print sport + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/arena_stadium':
+				print temp
+				arena = topic['property'][property]['values'][0]['text']
+				arena = '\t' + '| Arena:          ' + arena
+				whitespace = cal_whitespace(temp, arena)[:-2]
+				print arena + whitespace + '|' + '\t'
+
+			if property == '/common/topic/description':
+				print temp
+				descriptions = topic['property'][property]['values'][0]['value']
+				descriptions = ' Descriptions:   ' + descriptions
+				descriptions = descriptions.replace("\n", " ")
+				if len(descriptions)<len(temp):
+					whitespace = cal_whitespace(temp, descriptions)[:-4]
+					print '\t' + '|' + descriptions + whitespace + '|'
+				else:
+					print '\t' + '|' + descriptions[:len(temp)-4] + '|'
+					descriptions = descriptions[-(len(descriptions)-(len(temp)-4)):]
+
+					while len(descriptions) > len(temp):
+						print '\t' + '|                 ' + descriptions[:len(temp)-21] + '|'
+						descriptions = descriptions[-(len(descriptions)-(len(temp)-21)):]
+
+					if len(descriptions)>0 and len(descriptions)<len(temp):
+						descriptions = '\t' + '|                 ' + descriptions
+						whitespace = cal_whitespace(temp, descriptions)[:-2]
+						print descriptions + whitespace + '|'
+
+			if property == '/sports/sports_team/league':
+				print temp
+				league = topic['property'][property]['values'][0]['property']['/sports/sports_league_participation/league']['values'][0]['text']
+				league = '\t' + '| Leagues:        ' + league
+				whitespace = cal_whitespace(temp, league)[:-2]
+				print league + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/location':
+				print temp
+				location = topic['property'][property]['values'][0]['text']
+				location = '\t' + '| Locations:      ' + location
+				whitespace = cal_whitespace(temp, location)[:-2]
+				print location + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/founded':
+				print temp
+				founded = topic['property'][property]['values'][0]['text']
+				founded = '\t' + '| Founded:        ' + founded
+				whitespace = cal_whitespace(temp, founded)[:-2]
+				print founded + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/championships':
+				print temp
+				count = 0
+				for item in topic['property'][property]['values']:
+					count += 1
+					championships = item['text']
+					if count == 1:
+						championships = '\t' + '| Championships:  ' + championships
+					else:
+						championships = '\t' + '|                 ' + championships 
+					whitespace = cal_whitespace(temp, championships)[:-2]
+					print championships + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/coaches':
+				print temp
+				print '\t' + "| Coaches:      |Name                    | Position                    | From/To                   |"
+				print '\t' + "|               -----------------------------------------------------------------------------------"
+				for item in topic['property'][property]['values']:
+					name = item['property']['/sports/sports_team_coach_tenure/coach']['values'][0]['text']
+					position = item['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text']
+					from_year = item['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text']
+					if len(item['property']['/sports/sports_team_coach_tenure/to']['values'])>0:
+						to_year = item['property']['/sports/sports_team_coach_tenure/to']['values'][0]['text']
+					else:
+						to_year = 'now'
+					from_to = from_year + ' / ' + to_year
+
+					whitespace1 = ''
+					for i in range(24 - len(name)):
+						whitespace1 += ' '
+					whitespace2 = ''
+					for i in range(28 - len(position)):
+						whitespace2 += ' '
+					whitespace3 = ''
+					for i in range(26 - len(from_to)):
+						whitespace3 += ' '
+
+					print '\t' + "|               |" + name + whitespace1 + '| ' + position + whitespace2 + '| ' + from_to + whitespace3 + '|' + '\t'
+
+			if property == '/sports/sports_team/roster':
+				print temp
+				print '\t' + "| PlayersRoster:|Name             | Position             | Number             | From/To            |"
+				print '\t' + "|               -----------------------------------------------------------------------------------"
+				for item in topic['property'][property]['values']:
+					name = item['property']['/sports/sports_team_roster/player']['values'][0]['text']
+					try:
+						number = item['property']['/sports/sports_team_roster/number']['values'][0]['text']
+					except KeyError:
+						number = ''
+
+					try:
+						position = ''
+						for i in item['property']['/sports/sports_team_roster/position']['values']:
+							position += i['text'] + ', '
+						position = position[:-2]
+					except KeyError:
+						position = ''
+
+					from_year = item['property']['/sports/sports_team_roster/from']['values'][0]['text']
+					if len(item['property']['/sports/sports_team_roster/to']['values'])>0:
+						to_year = item['property']['/sports/sports_team_roster/to']['values'][0]['text']
+					else:
+						to_year = 'now'
+					from_to = from_year + ' / ' + to_year
+
+					if len(name)>16:
+						name = name[0:13] + "..."
+
+					if len(position)>19:
+						position = position[0:17] + "..."
+
+					if len(from_to)>17:
+						from_to = from_to[0:15] + "..."
+
+					whitespace1 = ''
+					for i in range(17 - len(name)):
+						whitespace1 += ' '
+					whitespace2 = ''
+					for i in range(21 - len(position)):
+						whitespace2 += ' '
+					whitespace3 = ''
+					for i in range(19 - len(number)):
+						whitespace3 += ' '
+					whitespace4 = ''
+					for i in range(19 - len(from_to)):
+						whitespace4 += ' '
+
+					print '\t' + "|               |" + name + whitespace1 + '| ' + position + whitespace2 + '| ' + number + whitespace3 + '| ' + from_to + whitespace4 + '|' + '\t'
+
+
+		except KeyError:
+			pass
 
 
 entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':'Actor', '/tv/tv_actor':'Actor', '/organization/organization_founder':'BusinessPerson', '/business/board_member':'BusinessPerson', '/sports/sports_league':'League', '/sports/sports_team':'SportsTeam', '/sports/professional_sports_team':'SportsTeam'}
@@ -158,7 +315,7 @@ entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':
 # utilize search API to get 'mid'
 mid = []
 api_key = open("api_key").read()
-query = 'Bill Gates'
+query = 'Miami Heat'
 search_url = 'https://www.googleapis.com/freebase/v1/search'
 params = {
         'query': query,
@@ -232,6 +389,7 @@ for item in type_set:
 		extract_league()
 	if item == 'SportsTeam':
 		extract_sportsteam()
+	print '\t' + " --------------------------------------------------------------------------------------------------"
 
 
 
