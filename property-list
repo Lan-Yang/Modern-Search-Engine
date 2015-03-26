@@ -8,7 +8,7 @@
 "/people/person/place_of_birth" "values" "text"
 
 **  Person/ Description
-"/common/topic/article" "values" "property" "/common/document/text" "values" "value"
+"/common/topic/description" "values" "value"
 
 ** Person/ Siblings
 "/people/person/sibling_s" "values" "property" "/people/sibling_relationship/sibling" "values" "text"
