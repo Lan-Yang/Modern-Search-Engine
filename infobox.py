@@ -131,6 +131,13 @@ def extract_actor():
 				for item in topic['property'][property]['values']:
 					character = item['property']['/film/performance/character']['values'][0]['text']
 					film = item['property']['/film/performance/film']['values'][0]['text']
+
+					if len(character)>38:
+						character = character[0:35] + "..."
+
+					if len(film)>39:
+						film = film[0:36] + "..."
+
 					whitespace1 = ''
 					for i in range(39 - len(character)):
 						whitespace1 += ' '
@@ -144,7 +151,128 @@ def extract_actor():
 
 
 def extract_businessperson():
-	pass
+	for property in topic['property']:
+		try:
+			if property == '/organization/organization_founder/organizations_founded':
+				print temp
+				count = 0
+				for item in topic['property'][property]['values']:
+					count += 1
+					founded = item['text']
+					if count == 1:
+						founded = '\t' + '| Founded:        ' + founded
+					else:
+						founded = '\t' + '|                 ' + founded  
+					if len(founded)>91:
+						founded = founded[0:91] + "..."
+					whitespace = cal_whitespace(temp, founded)[:-2]
+					print founded + whitespace + '|' + '\t'
+
+
+			if property == '/business/board_member/leader_of':
+				print temp
+				print '\t' + "| Leadership:    |Organization            | Role            | Title            | From-To           |"
+				print '\t' + "|                ----------------------------------------------------------------------------------"
+				for item in topic['property'][property]['values']:
+					organization = item['property']['/organization/leadership/organization']['values'][0]['text']
+					try:
+						role = item['property']['/organization/leadership/role']['values'][0]['text']
+					except KeyError:
+						role = ''
+
+					try:
+						title = item['property']['/organization/leadership/title']['values'][0]['text']
+					except KeyError:
+						title = ''
+
+					from_year = item['property']['/organization/leadership/from']['values'][0]['text']
+					try:
+						to_year = item['property']['/organization/leadership/to']['values'][0]['text']
+					except KeyError:
+						to_year = 'now'
+					from_to = from_year + ' / ' + to_year
+
+					if len(organization)>23:
+						organization = organization[0:20] + "..."
+
+					if len(role)>15:
+						role = role[0:12] + "..."
+
+					if len(title)>16:
+						title = title[0:13] + "..."
+
+					if len(from_to)>17:
+						from_to = from_to[0:14] + "..."
+
+					whitespace1 = ''
+					for i in range(24 - len(organization)):
+						whitespace1 += ' '
+					whitespace2 = ''
+					for i in range(16 - len(role)):
+						whitespace2 += ' '
+					whitespace3 = ''
+					for i in range(17 - len(title)):
+						whitespace3 += ' '
+					whitespace4 = ''
+					for i in range(18 - len(from_to)):
+						whitespace4 += ' '
+
+					print '\t' + "|                |" + organization + whitespace1 + '| ' + role + whitespace2 + '| ' + title + whitespace3 + '| ' + from_to + whitespace4 + '|' + '\t'
+
+			if property == '/business/board_member/organization_board_memberships':
+				print temp
+				print '\t' + "| Board Member:  |Organization            | Role            | Title            | From-To           |"
+				print '\t' + "|                ----------------------------------------------------------------------------------"
+				for item in topic['property'][property]['values']:
+					organization = item['property']['/organization/organization_board_membership/organization']['values'][0]['text']
+					try:
+						role = item['property']['/organization/organization_board_membership/role']['values'][0]['text']
+					except KeyError:
+						role = ''
+
+					try:
+						title = item['property']['/organization/organization_board_membership/title']['values'][0]['text']
+					except KeyError:
+						title = ''
+
+					from_year = item['property']['/organization/organization_board_membership/from']['values'][0]['text']
+					try:
+						to_year = item['property']['/organization/organization_board_membership/to']['values'][0]['text']
+					except KeyError:
+						to_year = 'now'
+					from_to = from_year + ' / ' + to_year
+
+					if len(organization)>23:
+						organization = organization[0:20] + "..."
+
+					if len(role)>15:
+						role = role[0:12] + "..."
+
+					if len(title)>16:
+						title = title[0:13] + "..."
+
+					if len(from_to)>17:
+						from_to = from_to[0:14] + "..."
+
+					whitespace1 = ''
+					for i in range(24 - len(organization)):
+						whitespace1 += ' '
+					whitespace2 = ''
+					for i in range(16 - len(role)):
+						whitespace2 += ' '
+					whitespace3 = ''
+					for i in range(17 - len(title)):
+						whitespace3 += ' '
+					whitespace4 = ''
+					for i in range(18 - len(from_to)):
+						whitespace4 += ' '
+
+					print '\t' + "|                |" + organization + whitespace1 + '| ' + role + whitespace2 + '| ' + title + whitespace3 + '| ' + from_to + whitespace4 + '|' + '\t'
+
+
+		except KeyError:
+			pass
+	
 
 def extract_league():
 	for property in topic['property']:
@@ -306,13 +434,26 @@ def extract_sportsteam():
 				print '\t' + "|               -----------------------------------------------------------------------------------"
 				for item in topic['property'][property]['values']:
 					name = item['property']['/sports/sports_team_coach_tenure/coach']['values'][0]['text']
-					position = item['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text']
+					try:
+						position = item['property']['/sports/sports_team_coach_tenure/position']['values'][0]['text']
+					except KeyError:
+						position = ''
+
 					from_year = item['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text']
-					if len(item['property']['/sports/sports_team_coach_tenure/to']['values'])>0:
+					try:
 						to_year = item['property']['/sports/sports_team_coach_tenure/to']['values'][0]['text']
-					else:
+					except KeyError:
 						to_year = 'now'
 					from_to = from_year + ' / ' + to_year
+
+					if len(name)>23:
+						name = name[0:20] + "..."
+
+					if len(role)>27:
+						position = position[0:24] + "..."
+
+					if len(from_to)>25:
+						from_to = from_to[0:22] + "..."
 
 					whitespace1 = ''
 					for i in range(24 - len(name)):
@@ -346,9 +487,9 @@ def extract_sportsteam():
 						position = ''
 
 					from_year = item['property']['/sports/sports_team_roster/from']['values'][0]['text']
-					if len(item['property']['/sports/sports_team_roster/to']['values'])>0:
+					try:
 						to_year = item['property']['/sports/sports_team_roster/to']['values'][0]['text']
-					else:
+					except KeyError:
 						to_year = 'now'
 					from_to = from_year + ' / ' + to_year
 
@@ -375,7 +516,6 @@ def extract_sportsteam():
 						whitespace4 += ' '
 
 					print '\t' + "|               |" + name + whitespace1 + '| ' + position + whitespace2 + '| ' + number + whitespace3 + '| ' + from_to + whitespace4 + '|' + '\t'
-
 
 		except KeyError:
 			pass
@@ -460,7 +600,8 @@ for item in type_set:
 		extract_league()
 	if item == 'SportsTeam':
 		extract_sportsteam()
-	print '\t' + " --------------------------------------------------------------------------------------------------"
+
+print '\t' + " --------------------------------------------------------------------------------------------------"
 
 
 
