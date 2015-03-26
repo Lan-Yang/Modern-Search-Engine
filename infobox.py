@@ -19,6 +19,27 @@ def extract_person():
 				whitespace = cal_whitespace(temp, name)[:-2]
 				print name + whitespace + '|' + '\t'
 
+			if property == '/people/deceased_person/date_of_death':
+				print temp
+				date_of_death = topic['property'][property]['values'][0]['text']
+				date_of_death = '\t' + '| Date of Death:  '  + date_of_death 
+				whitespace = cal_whitespace(temp, date_of_death)[:-2]
+				print date_of_death + whitespace + '|' + '\t'
+
+			if property == '/people/deceased_person/place_of_death':
+				print temp
+				place_of_death = topic['property'][property]['values'][0]['text']
+				place_of_death = '\t' + '| Place of Death: '  + place_of_death 
+				whitespace = cal_whitespace(temp, place_of_death)[:-2]
+				print place_of_death + whitespace + '|' + '\t'
+
+			if property == '/people/deceased_person/cause_of_death':
+				print temp
+				cause_of_death = topic['property'][property]['values'][0]['text']
+				cause_of_death = '\t' + '| Cause of Death: '  + cause_of_death 
+				whitespace = cal_whitespace(temp, cause_of_death)[:-2]
+				print cause_of_death + whitespace + '|' + '\t'
+
 			if property == '/people/person/date_of_birth':
 				print temp
 				birth_date = topic['property'][property]['values'][0]['text']
@@ -148,6 +169,20 @@ def extract_author():
 					whitespace = cal_whitespace(temp, influenced)[:-2]
 					print influenced + whitespace + '|' + '\t'
 			
+			if property == '/influence/influence_node/influenced_by':
+				print temp
+				count = 0
+				for item in topic['property'][property]['values']:
+					count += 1
+					influenced_by = item['text']
+					if count == 1:
+						influenced_by = '\t' + '| Influenced By:  ' + influenced_by
+					else:
+						influenced_by = '\t' + '|                 ' + influenced_by  
+					if len(influenced_by)>91:
+						influenced_by = influenced_by[0:91] + "..."
+					whitespace = cal_whitespace(temp, influenced_by)[:-2]
+					print influenced_by + whitespace + '|' + '\t'
 
 		except KeyError:
 			pass
