@@ -100,6 +100,21 @@ def extract_author():
 						about = about[0:91] + "..."
 					whitespace = cal_whitespace(temp, about)[:-2]
 					print about + whitespace + '|' + '\t'
+
+			if property == '/influence/influence_node/influenced':
+				print temp
+				count = 0
+				for item in topic['property'][property]['values']:
+					count += 1
+					influenced = item['text']
+					if count == 1:
+						influenced = '\t' + '| Influenced:     ' + influenced
+					else:
+						influenced = '\t' + '|                 ' + influenced  
+					if len(influenced)>91:
+						influenced = influenced[0:91] + "..."
+					whitespace = cal_whitespace(temp, influenced)[:-2]
+					print influenced + whitespace + '|' + '\t'
 			
 
 		except KeyError:
