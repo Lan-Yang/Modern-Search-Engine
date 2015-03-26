@@ -65,6 +65,38 @@ def extract_person():
 					whitespace = cal_whitespace(temp, sibling)[:-2]
 					print sibling + whitespace + '|' + '\t'
 
+			if property == '/people/person/spouse_s':
+				print temp
+				count = 0
+				for item in topic['property'][property]['values']:
+					count += 1
+					name = item['property']['/people/marriage/spouse']['values'][0]['text']
+
+					try:
+						location = item['property']['/people/marriage/location_of_ceremony']['values'][0]['text']
+					except (KeyError, IndexError):
+						location = ''
+
+					from_year = item['property']['/people/marriage/from']['values'][0]['text']
+					try:
+						to_year = item['property']['/people/marriage/to']['values'][0]['text']
+					except (KeyError, IndexError):
+						to_year = 'now'
+					from_to = ' (' + from_year + ' - ' + to_year + ') '
+
+					if count == 1:
+						line = '\t' + '| Spouses:        ' + name + from_to
+						if location is not '':
+							line += '@ ' + location
+					else:
+						line = '\t' + '|                 ' + name + from_to
+						if location is not '':
+							line += '@ ' + location
+
+					whitespace = cal_whitespace(temp, line)[:-2]
+
+					print line + whitespace + '|' + '\t'
+
 		except KeyError:
 			pass
 
@@ -129,7 +161,10 @@ def extract_actor():
 				print '\t' + "|                ----------------------------------------------------------------------------------"
 
 				for item in topic['property'][property]['values']:
-					character = item['property']['/film/performance/character']['values'][0]['text']
+					try:
+						character = item['property']['/film/performance/character']['values'][0]['text']
+					except KeyError:
+						character = item['property']['/film/performance/special_performance_type']['values'][0]['text']
 					film = item['property']['/film/performance/film']['values'][0]['text']
 
 					if len(character)>38:
@@ -188,7 +223,7 @@ def extract_businessperson():
 					from_year = item['property']['/organization/leadership/from']['values'][0]['text']
 					try:
 						to_year = item['property']['/organization/leadership/to']['values'][0]['text']
-					except KeyError:
+					except (KeyError, IndexError):
 						to_year = 'now'
 					from_to = from_year + ' / ' + to_year
 
@@ -238,7 +273,7 @@ def extract_businessperson():
 					from_year = item['property']['/organization/organization_board_membership/from']['values'][0]['text']
 					try:
 						to_year = item['property']['/organization/organization_board_membership/to']['values'][0]['text']
-					except KeyError:
+					except (KeyError, IndexError):
 						to_year = 'now'
 					from_to = from_year + ' / ' + to_year
 
@@ -442,7 +477,7 @@ def extract_sportsteam():
 					from_year = item['property']['/sports/sports_team_coach_tenure/from']['values'][0]['text']
 					try:
 						to_year = item['property']['/sports/sports_team_coach_tenure/to']['values'][0]['text']
-					except KeyError:
+					except (KeyError, IndexError):
 						to_year = 'now'
 					from_to = from_year + ' / ' + to_year
 
@@ -489,7 +524,7 @@ def extract_sportsteam():
 					from_year = item['property']['/sports/sports_team_roster/from']['values'][0]['text']
 					try:
 						to_year = item['property']['/sports/sports_team_roster/to']['values'][0]['text']
-					except KeyError:
+					except (KeyError, IndexError):
 						to_year = 'now'
 					from_to = from_year + ' / ' + to_year
 
@@ -526,7 +561,7 @@ entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':
 # utilize search API to get 'mid'
 mid = []
 api_key = open("api_key").read()
-query = 'Bill Gates'
+query = 'Jackson'
 search_url = 'https://www.googleapis.com/freebase/v1/search'
 params = {
         'query': query,
