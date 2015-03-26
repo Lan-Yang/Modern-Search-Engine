@@ -147,10 +147,6 @@ def extract_businessperson():
 	pass
 
 def extract_league():
-
-	pass
-
-def extract_sportsteam():
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -160,10 +156,85 @@ def extract_sportsteam():
 				whitespace = cal_whitespace(temp, name)[:-2]
 				print name + whitespace + '|' + '\t'
 
-			if property == '/sports/sports_team/sport':
+			if property == '/sports/sports_league/sport':
 				print temp
 				sport = topic['property'][property]['values'][0]['text']
 				sport = '\t' + '| Sport:          ' + sport
+				whitespace = cal_whitespace(temp, sport)[:-2]
+				print sport + whitespace + '|' + '\t'
+
+			if property == '/organization/organization/slogan':
+				print temp
+				slogan = topic['property'][property]['values'][0]['text']
+				slogan = '\t' + '| Slogan:           ' + slogan
+				whitespace = cal_whitespace(temp, slogan)[:-2]
+				print slogan + whitespace + '|' + '\t'
+
+			if property == '/common/topic/official_website':
+				print temp
+				website = topic['property'][property]['values'][0]['text']
+				website = '\t' + '| Official Website: ' + website
+				whitespace = cal_whitespace(temp, website)[:-2]
+				print website + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_league/championship':
+				print temp
+				championship = topic['property'][property]['values'][0]['text']
+				championship = '\t' + '| Championship:     ' + championship
+				whitespace = cal_whitespace(temp, championship)[:-2]
+				print championship + whitespace + '|' + '\t'
+
+			if property == '/common/topic/description':
+				print temp
+				descriptions = topic['property'][property]['values'][0]['value']
+				descriptions = ' Descriptions:   ' + descriptions
+				descriptions = descriptions.replace("\n", " ")
+				if len(descriptions)<len(temp):
+					whitespace = cal_whitespace(temp, descriptions)[:-4]
+					print '\t' + '|' + descriptions + whitespace + '|'
+				else:
+					print '\t' + '|' + descriptions[:len(temp)-4] + '|'
+					descriptions = descriptions[-(len(descriptions)-(len(temp)-4)):]
+
+					while len(descriptions) > len(temp):
+						print '\t' + '|                 ' + descriptions[:len(temp)-21] + '|'
+						descriptions = descriptions[-(len(descriptions)-(len(temp)-21)):]
+
+					if len(descriptions)>0 and len(descriptions)<len(temp):
+						descriptions = '\t' + '|                 ' + descriptions
+						whitespace = cal_whitespace(temp, descriptions)[:-2]
+						print descriptions + whitespace + '|'
+
+			if property == '/sports/sports_league/teams':
+				print temp
+				count = 0
+				for item in topic['property'][property]['values']:
+					count += 1
+					team = item['property']['/sports/sports_league_participation/team']['values'][0]['text']
+					if count == 1:
+						team = '\t' + '| Teams:            ' + team
+					else:
+						team = '\t' + '|                   ' + team 
+					whitespace = cal_whitespace(temp, team)[:-2]
+					print team + whitespace + '|' + '\t'
+
+		except KeyError:
+			pass	
+
+def extract_sportsteam():
+	for property in topic['property']:
+		try:
+			if property == '/type/object/name':
+				print temp
+				name = topic['property'][property]['values'][0]['text']
+				name = '\t' + '| Name:             '  + name 
+				whitespace = cal_whitespace(temp, name)[:-2]
+				print name + whitespace + '|' + '\t'
+
+			if property == '/sports/sports_team/sport':
+				print temp
+				sport = topic['property'][property]['values'][0]['text']
+				sport = '\t' + '| Sport:            ' + sport
 				whitespace = cal_whitespace(temp, sport)[:-2]
 				print sport + whitespace + '|' + '\t'
 
@@ -177,7 +248,7 @@ def extract_sportsteam():
 			if property == '/common/topic/description':
 				print temp
 				descriptions = topic['property'][property]['values'][0]['value']
-				descriptions = ' Descriptions:   ' + descriptions
+				descriptions = ' Descriptions:     ' + descriptions
 				descriptions = descriptions.replace("\n", " ")
 				if len(descriptions)<len(temp):
 					whitespace = cal_whitespace(temp, descriptions)[:-4]
@@ -315,7 +386,7 @@ entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':
 # utilize search API to get 'mid'
 mid = []
 api_key = open("api_key").read()
-query = 'Miami Heat'
+query = 'Bill Gates'
 search_url = 'https://www.googleapis.com/freebase/v1/search'
 params = {
         'query': query,
