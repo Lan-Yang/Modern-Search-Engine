@@ -1,3 +1,168 @@
-# Modern-Search-Engine
-This is for Advanced Database System Project 2
-The goal is to exploit knowledge graphs in the context of web search in different ways, including infobox creation and question answering.
+1. Team:
+Peng Song (ps2839)
+Lan Yang (ly2331)
+
+2. Files:
+info_query.py 			#python program
+README				#readme file
+transcript			#transcript of test cases
+
+3. Description of Running:
+To run our program, run the following command:
+$python info_query.py -key <Freebase API key> -q <query> -t <infobox|question>
+$python info_query.py -key <Freebase API key> -f <file of queries> -t <infobox|question>
+$python info_query.py -key <Freebase API key>
+
+4. Internal Design:
+First, we analyze input, and according to different input, we return infobox or answer to question in proper format.
+For infobox design, we use Freebase Search API to get entity mid. Using mid and Freebase Topic API, we can get json file of 
+various properties about one search term. Then we analyze properties of interest and find corresponding values by mapping from 
+Freebase properties to the properties of interest. In the end, we display result in proper format.
+For the infobox design, we returned all the possible type of entity to the user as we want to provide a most comprehensive result as we can. In some cases like NFL, our system might identify it as an author as well as a league. Since we cannot manually rule out all the unreasonable combinations, we keep it as it is.
+The mapping from Freebase properties to the entity properties of interest that we return is as follow:
+** Person/ Name
+"/type/object/name"
+
+** Person/ Birthday
+"/people/person/date_of_birth"
+
+** Person/ Place of Birth
+"/people/person/place_of_birth"
+
+**  Person/ Description
+"/common/topic/description"
+
+** Person/ Siblings
+"/people/person/sibling_s" -"/people/sibling_relationship/sibling"
+
+** Person/ Spouses
+"/people/person/spouse_s"
+- "/people/marriage/from"
+- "/people/marriage/location_of_ceremony"
+- "/people/marriage/spouse"
+
+** Person/ Death
+"/people/deceased_person/date_of_death"
+"/people/deceased_person/place_of_death"
+"/people/deceased_person/cause_of_death"
+
+** Author/Books(Title)
+"/book/author/works_written"
+
+** Author/ Book About the Author(Title)
+"/book/book_subject/works"
+
+** Author / Influenced
+"/influence/influence_node/influenced"
+
+** Author / Influenced by
+"/influence/influence_node/influenced_by"
+
+** BusinessPerson / Leadership
+"/business/board_member/leader_of"
+- "/organization/leadership/from"
+- "/organization/leadership/organization"
+- "/organization/leadership/role"
+- "/organization/leadership/title"
+- "/organization/leadership/to"
+
+** BusinessPerson / BoardMember
+"/business/board_member/organization_board_memberships"
+- "/organization/organization_board_membership/from"
+- "/organization/organization_board_membership/to" (absence means "now")
+- "/organization/organization_board_membership/organization" 
+- "/organization/organization_board_membership/title" 
+- "/organization/organization_board_membership/role" 
+
+** BusinessPerson / Founded
+"/organization/organization_founder/organizations_founded"
+
+** Actor/ FilmsParticipated
+"/film/actor/film"
+- "/film/performance/character"
+- "/film/performance/film"
+
+** League/ Name
+"/type/object/name"
+
+** League/ Sport
+"/sports/sports_league/sport"
+
+** League/ Slogan
+"/organization/organization/slogan"
+
+** League/ OfficialWebsite
+"/common/topic/official_website"
+
+** League/ Championship
+"/sports/sports_league/championship"
+
+** League/ Teams
+"/sports/sports_league/teams"
+- "/sports/sports_league_participation/team"
+
+** League/ Description
+"/common/topic/description"
+
+** SportsTeam/ Name
+"/type/object/name" "values"
+
+** SportsTeam/ Description
+"/common/topic/description"
+
+** SportsTeam/ Sport
+"/sports/sports_team/sport"
+
+** SportsTeam/ Championships
+"/sports/sports_team/championships"
+
+** SportsTeam/ Arena
+"/sports/sports_team/arena_stadium"
+
+** SportsTeam/ Leagues
+"/sports/sports_team/league" 
+- "/sports/sports_league_participation/league"
+
+** SPortsTeam/ Locations
+"/sports/sports_team/location" 
+
+** SportsTeam/ Coaches
+"/sports/sports_team/coaches"
+- "/sports/sports_team_coach_tenure/coach" 
+- "/sports/sports_team_coach_tenure/from"
+- "/sports/sports_team_coach_tenure/to" 
+- "/sports/sports_team_coach_tenure/position" 
+
+** SportsTeam/ PlayersRoster
+"/sports/sports_team/roster" 
+- "/sports/sports_team_roster/player"
+- "/sports/sports_team_roster/position" 
+- "/sports/sports_team_roster/number"
+- "/sports/sports_team_roster/from" 
+- "/sports/sports_team_roster/to"
+
+For question answering, we use Freebase MQL Read API to get original answer to question, then we extract information needed from 
+result and display it in proper format. Queries are as below.
+[{
+  "/book/author/works_written": [{
+    "a:name": null,
+    "name~=": "Hobbits"
+  }],
+  "id":   null,
+  "name": null,
+  "type": "/book/author"
+}]
+
+[{
+  "/organization/organization_founder/organizations_founded": [{
+    "a:name": null,
+    "name~=": "Microsoft"
+  }],
+  "id": null,
+  "name": null,
+  "type": "/organization/organization_founder"
+}]
+
+5. Freebase API Key:
+AIzaSyCOPsTPKPOt4g8CJtMVC41bsgoaTcJR1L8
+10 requests/second per user
