@@ -1,3 +1,4 @@
+import sys, getopt
 import json
 import urllib
 
@@ -9,7 +10,7 @@ def cal_whitespace(a, b):
 
 	return whitespace
 
-def extract_person():
+def extract_person(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -59,18 +60,18 @@ def extract_person():
 				descriptions = topic['property'][property]['values'][0]['value']
 				descriptions = ' Descriptions:   ' + descriptions
 				descriptions = descriptions.replace("\n", " ")
-				if len(descriptions)<len(temp):
+				if len(descriptions)<83:
 					whitespace = cal_whitespace(temp, descriptions)[:-4]
 					print '\t' + '|' + descriptions + whitespace + '|'
 				else:
 					print '\t' + '|' + descriptions[:len(temp)-4] + '|'
 					descriptions = descriptions[-(len(descriptions)-(len(temp)-4)):]
 
-					while len(descriptions) > len(temp):
+					while len(descriptions) > 83:
 						print '\t' + '|                 ' + descriptions[:len(temp)-21] + '|'
 						descriptions = descriptions[-(len(descriptions)-(len(temp)-21)):]
 
-					if len(descriptions)>0 and len(descriptions)<len(temp):
+					if len(descriptions)>0 and len(descriptions)<83:
 						descriptions = '\t' + '|                 ' + descriptions
 						whitespace = cal_whitespace(temp, descriptions)[:-2]
 						print descriptions + whitespace + '|'
@@ -121,7 +122,7 @@ def extract_person():
 		except KeyError:
 			pass
 
-def extract_author():
+def extract_author(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/book/author/works_written':
@@ -187,7 +188,7 @@ def extract_author():
 		except KeyError:
 			pass
 
-def extract_actor():
+def extract_actor(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/film/actor/film':
@@ -220,7 +221,7 @@ def extract_actor():
 			pass
 
 
-def extract_businessperson():
+def extract_businessperson(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/organization/organization_founder/organizations_founded':
@@ -339,12 +340,11 @@ def extract_businessperson():
 
 					print '\t' + "|                |" + organization + whitespace1 + '| ' + role + whitespace2 + '| ' + title + whitespace3 + '| ' + from_to + whitespace4 + '|' + '\t'
 
-
 		except KeyError:
 			pass
 	
 
-def extract_league():
+def extract_league(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -419,7 +419,7 @@ def extract_league():
 		except KeyError:
 			pass	
 
-def extract_sportsteam():
+def extract_sportsteam(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -591,84 +591,344 @@ def extract_sportsteam():
 			pass
 
 
-entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':'Actor', '/tv/tv_actor':'Actor', '/organization/organization_founder':'BusinessPerson', '/business/board_member':'BusinessPerson', '/sports/sports_league':'League', '/sports/sports_team':'SportsTeam', '/sports/professional_sports_team':'SportsTeam'}
+def search_infobox(key, query):
+	entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':'Actor', '/tv/tv_actor':'Actor', '/organization/organization_founder':'BusinessPerson', '/business/board_member':'BusinessPerson', '/sports/sports_league':'League', '/sports/sports_team':'SportsTeam', '/sports/professional_sports_team':'SportsTeam'}
 
-# utilize search API to get 'mid'
-mid = []
-api_key = open("api_key").read()
-query = 'Jackson'
-search_url = 'https://www.googleapis.com/freebase/v1/search'
-params = {
-        'query': query,
-        'key': api_key
-}
-url = search_url + '?' + urllib.urlencode(params)
-response = json.loads(urllib.urlopen(url).read())
-for result in response['result']:
-	mid.append(str(result['mid']))
-
-# pass 'mid' to topic API
-topic_url = 'https://www.googleapis.com/freebase/v1/topic'
-found = False
-count = 0
-type_set = set()
-topic_id = mid[0]
-
-while found == False and count < len(mid):
-	topic_id = mid[count]
-	print mid[count]
+	# utilize search API to get 'mid'
+	mid = []
+	api_key = key
+	search_url = 'https://www.googleapis.com/freebase/v1/search'
 	params = {
-	  'key': api_key,
-	  'filter': 'all'
+	        'query': query,
+	        'key': api_key
 	}
-	url = topic_url + topic_id + '?' + urllib.urlencode(params)
-	topic = json.loads(urllib.urlopen(url).read())
+	url = search_url + '?' + urllib.urlencode(params)
+	response = json.loads(urllib.urlopen(url).read())
+	for result in response['result']:
+		mid.append(str(result['mid']))
 
-	# get 'id' in '/type/object/type'
-	for property in topic['property']:
-		# top level of '/type/object/type' property
-		if property == '/type/object/type':
-			for value in topic['property'][property]['values']:
-				if entity_dic.has_key(str(value['id'])):
-					found = True
-					type_set.add(entity_dic.get(str(value['id'])))
+	# pass 'mid' to topic API
+	topic_url = 'https://www.googleapis.com/freebase/v1/topic'
+	found = False
+	count = 0
+	type_set = set()
+	topic_id = mid[0]
 
-			if not found:
-				count += 1
+	while found == False and count < len(mid):
+		topic_id = mid[count]
+		# print mid[count]
+		params = {
+		  'key': api_key,
+		  'filter': 'all'
+		}
+		url = topic_url + topic_id + '?' + urllib.urlencode(params)
+		topic = json.loads(urllib.urlopen(url).read())
 
-temp = '\t' + " -------------------------------------------------------------------------------------------------- " + '\t'
-print temp
+		# get 'id' in '/type/object/type'
+		for property in topic['property']:
+			# top level of '/type/object/type' property
+			if property == '/type/object/type':
+				for value in topic['property'][property]['values']:
+					if entity_dic.has_key(str(value['id'])):
+						found = True
+						type_set.add(entity_dic.get(str(value['id'])))
 
-line = query + '('
+				if not found:
+					count += 1
 
-for item in type_set:
-	line += item + ", "
+	temp = '\t' + " -------------------------------------------------------------------------------------------------- " + '\t'
+	print temp
 
-line = line[:-2]
+	line = query + '('
 
-line += ')'
+	for item in type_set:
+		line += item + ", "
 
-whitespace = ''
+	line = line[:-2]
 
-for i in range((len(temp) - len(line) -4)/2):
-	whitespace += ' ' 
+	line += ')'
 
-line = '\t' + '|' + whitespace + line + whitespace + '|' + '\t'
+	whitespace = ''
 
-print line
+	for i in range((len(temp) - len(line) -4)/2):
+		whitespace += ' ' 
 
-for item in type_set:
-	if item == 'Person':
-		extract_person()
-	if item == 'Actor':
-		extract_actor()
-	if item == 'Author':
-		extract_author()
-	if item == 'BusinessPerson':
-		extract_businessperson()
-	if item == 'League':
-		extract_league()
-	if item == 'SportsTeam':
-		extract_sportsteam()
+	line = '\t' + '|' + whitespace + line + whitespace + '|' + '\t'
 
-print '\t' + " --------------------------------------------------------------------------------------------------"
+	print line
+
+	for item in type_set:
+		if item == 'Person':
+			extract_person(topic, temp)
+		if item == 'Actor':
+			extract_actor(topic, temp)
+		if item == 'Author':
+			extract_author(topic, temp)
+		if item == 'BusinessPerson':
+			extract_businessperson(topic, temp)
+		if item == 'League':
+			extract_league(topic, temp)
+		if item == 'SportsTeam':
+			extract_sportsteam(topic, temp)
+
+	print '\t' + " --------------------------------------------------------------------------------------------------"
+
+
+def search_question(key, query):
+	# User input question in the format "Who created [X]?"
+	question = query.split()
+	length = len(question)
+	global result_list
+	result_list = []
+
+	# Check input question's format
+	if (question[0].lower() != 'who' or question[1].lower() != 'created' or question[-1][-1] != '?'):
+		print 'Wrong input format!'
+		exit(1)
+
+	# Get [X]
+	search_term = ' '.join(question[2:])
+	search_term = search_term[:-1]
+	api_key = key
+	service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
+
+	query = [{
+		"/book/author/works_written": [{
+			"a:name": None,
+			"name~=": search_term
+		}],
+		"id":   None,
+		"name": None,
+		"type": "/book/author"
+	}]
+	params = {
+		'query': json.dumps(query),
+		'key': api_key
+	}
+	url = service_url + '?' + urllib.urlencode(params)
+	response = json.loads(urllib.urlopen(url).read())
+
+	global author_dict
+	author_dict = {}
+	global business_dict
+	business_dict = {}
+
+	# Format output result in the format "A (as XXX) created <X1>, <X2>, ... and <Xn>."
+	for author in response['result']:
+		tmp_list = []
+		tmp_str = ''
+		tmp_length = 0
+		name = author['name']
+		for book in author["/book/author/works_written"]:
+			tmp_list.append(book['a:name'])
+		author_dict[name] = tmp_list
+		tmp_length = len(tmp_list)
+		tmp_str = '%s (as Author) created <%s>' % (name, tmp_list[0])
+		tmp_length = tmp_length - 1
+		while (tmp_length > 1):
+			tmp_str = tmp_str + ', <%s>' % tmp_list[len(tmp_list) - tmp_length]
+			tmp_length = tmp_length - 1
+		if (tmp_length > 0):
+			tmp_str = tmp_str + ' and <%s>.' % tmp_list[len(tmp_list) - tmp_length]
+		result_list.append(tmp_str)
+
+	# Treat X as substring of a company name, search its businessperson's name
+	query = [{
+		"/organization/organization_founder/organizations_founded": [{
+			"a:name": None,
+			"name~=": search_term
+		}],
+		"id": None,
+		"name": None,
+		"type": "/organization/organization_founder"
+	}]
+	params = {
+		'query': json.dumps(query),
+		'key': api_key
+	}
+	url = service_url + '?' + urllib.urlencode(params)
+	response = json.loads(urllib.urlopen(url).read())
+
+	# Format output result in the format "A (as XXX) created <X1>, <X2>, ... and <Xn>."
+	for businessperson in response['result']:
+		tmp_list = []
+		tmp_str = ''
+		tmp_length = 0
+		name = businessperson['name']
+		for company in businessperson["/organization/organization_founder/organizations_founded"]:
+			tmp_list.append(company['a:name'])
+		business_dict[name] = tmp_list
+		tmp_length = len(tmp_list)
+		tmp_str = '%s (as BusinessPerson) created <%s>' % (name, tmp_list[0])
+		tmp_length = tmp_length - 1
+		while (tmp_length > 1):
+			tmp_str = tmp_str + ', <%s>' % tmp_list[len(tmp_list) - tmp_length]
+			tmp_length = tmp_length - 1
+		if (tmp_length > 0):
+			tmp_str = tmp_str + ' and <%s>.' % tmp_list[len(tmp_list) - tmp_length]
+		result_list.append(tmp_str)
+
+def main():
+   	try:
+   		opts, args = getopt.getopt(sys.argv[1:], "key:q:f:t:", ["query=", "file=", "type="])
+
+   		opt = []
+   		arg = []
+   		for o, a in opts:
+   			if ('-k', '') in opts and ('-e', '') in opts and o == '-y':
+   				opt.append('-key')
+   				arg.append(a)
+   			if o == '-q':
+   				opt.append(o)
+   				arg.append(a)
+   			if o == '-f':
+   				opt.append(o)
+   				arg.append(a)
+   			if o == '-t':
+   				opt.append(o)
+   				arg.append(a)
+   		
+   		if '-key' in opt:
+   			key = arg[opt.index('-key')]
+   			if '-q' in opt and '-t' in opt:
+   				query = arg[opt.index('-q')]
+   				qtype = arg[opt.index('-t')]
+
+   				if qtype == 'infobox':
+   					search_infobox(key, query)
+
+   				elif qtype == 'question':
+   					search_question(key, query)
+
+					# Sort lines alphabetically by <Name>
+					result_list.sort()
+
+					# Display result
+					count = 0
+					for each_result in result_list:
+						count += 1
+						print str(count) + ". " + each_result
+
+   				else:
+   					print "Please input infobox|question"
+
+   			elif '-f' in opt and '-t' in opt:
+   				filen = arg[opt.index('-f')]
+   				qtype = arg[opt.index('-t')]
+
+   			else:
+   				print "Welcome to infoxbox creator using Freebase knowledge graph."
+				print "Feel curious? Start exploring..."
+
+				while (True):
+					query = raw_input('> ')
+					print "Let me see..."
+					
+					question = query.split()
+
+					# Check input question's format
+					if (question[0].lower() != 'who' or question[1].lower() != 'created' or question[-1][-1] != '?'):
+						search_infobox(key, query)
+					else:
+						search_question(key, query)
+
+						temp = '\t' + " -------------------------------------------------------------------------------------------------- " + '\t'
+						print temp
+
+						whitespace = ''
+
+						for i in range((len(temp) - len(query) - 4)/2):
+							whitespace += ' ' 
+
+						if (len(temp) - len(query) - 4) % 2 == 0:
+							question_str = '\t' + '|' + whitespace + query + whitespace + '|' + '\t'
+						else:
+							question_str = '\t' + '|' + whitespace + query + whitespace + ' ' + '|' + '\t'
+
+						print question_str
+
+						name_list = []
+
+						for author, book in author_dict.iteritems():
+							name_list.append(author)
+						for person, company in business_dict.iteritems():
+							name_list.append(person)	
+
+						name_list.sort()
+
+						for name in name_list:
+							if author_dict.has_key(name):
+								print temp
+
+								line = '\t' + '| ' + name + ':'
+								whitespace = ''
+
+								for i in range(25 - len(line)):
+									whitespace += ' ' 
+
+								line += whitespace + "|As                             | Creation                                 |"
+
+								print line
+								print '\t' + "|                       ---------------------------------------------------------------------------" + '\t'
+
+								count = 0
+								for book in author_dict[name]:
+									count += 1
+
+									if len(book)>40:
+										book = book[0:37] + "..."
+
+									whitespace = ''
+									for i in range(41 - len(book)):
+										whitespace += ' '
+
+									if count == 1:
+										line = '\t' + "|                       |Author                         | " + book + whitespace + '|' + '\t'
+									else:
+										line = '\t' + "|                       |                               | " + book + whitespace + '|' + '\t'
+
+									print line
+
+							elif business_dict.has_key(name):
+								print temp
+
+								line = '\t' + '| ' + name + ':'
+								whitespace = ''
+
+								for i in range(25 - len(line)):
+									whitespace += ' ' 
+
+								line += whitespace + "|As                             | Creation                                 |"
+
+								print line
+								print '\t' + "|                       ---------------------------------------------------------------------------" + '\t'
+
+								count = 0
+								for company in business_dict[name]:
+									count += 1
+
+									if len(company)>40:
+										company = company[0:37] + "..."
+
+									whitespace = ''
+									for i in range(41 - len(company)):
+										whitespace += ' '
+
+									if count == 1:
+										line = '\t' + "|                       |Business Person                | " + company + whitespace + '|' + '\t'
+									else:
+										line = '\t' + "|                       |                               | " + company + whitespace + '|' + '\t'
+
+									print line
+
+						print temp		
+
+   		else:
+   			print "Please input the key!"
+
+	except getopt.GetoptError:
+		print "Wrong Options!"
+
+if __name__ == "__main__":
+    main()
+
