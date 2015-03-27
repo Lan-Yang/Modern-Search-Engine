@@ -20,7 +20,9 @@
 - "/people/marriage/spouse" "values" "text"
 
 ** Person/ Death
-
+/people/deceased_person/date_of_death
+/people/deceased_person/place_of_death
+/people/deceased_person/cause_of_death
 
 ** Author/Books(Title)
 "/book/author/works_written" "values" "text"
@@ -32,7 +34,7 @@
 "/influence/influence_node/influenced" "values" "text"
 
 ** Author / Influenced by
-
+/influence/influence_node/influenced_by
 
 ** BusinessPerson / Leadership
 "/business/board_member/leader_of" "values" "property"
