@@ -519,7 +519,7 @@ def extract_sportsteam(topic, temp):
 					if len(name)>23:
 						name = name[0:20] + "..."
 
-					if len(role)>27:
+					if len(position)>27:
 						position = position[0:24] + "..."
 
 					if len(from_to)>25:
@@ -815,7 +815,25 @@ def main():
    			elif '-f' in opt and '-t' in opt:
    				filen = arg[opt.index('-f')]
    				qtype = arg[opt.index('-t')]
+   				with open(filen) as temp_f:
+   					query_list = temp_f.readlines()
+   				for temp_i in range(len(query_list)):
+   					query = query_list[temp_i].replace("\n",'')
+   					if qtype == 'infobox':
+   						search_infobox(key, query)
+   					elif qtype == 'question':
+   						print query
+   						search_question(key, query)
+   						# Sort lines alphabetically by <Name>
+						result_list.sort()
 
+						# Display result
+						count = 0
+						for each_result in result_list:
+							count += 1
+							print str(count) + ". " + each_result
+					else:
+   						print "Please input infobox|question"
    			else:
    				print "Welcome to infoxbox creator using Freebase knowledge graph."
 				print "Feel curious? Start exploring..."

@@ -519,7 +519,7 @@ def extract_sportsteam():
 					if len(name)>23:
 						name = name[0:20] + "..."
 
-					if len(role)>27:
+					if len(position)>27:
 						position = position[0:24] + "..."
 
 					if len(from_to)>25:
@@ -596,7 +596,7 @@ entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':
 # utilize search API to get 'mid'
 mid = []
 api_key = open("api_key").read()
-query = 'Jackson'
+query = 'New York Knicks'
 search_url = 'https://www.googleapis.com/freebase/v1/search'
 params = {
         'query': query,
