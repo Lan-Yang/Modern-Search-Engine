@@ -1,3 +1,4 @@
+import sys, getopt
 import json
 import urllib
 
@@ -9,7 +10,7 @@ def cal_whitespace(a, b):
 
 	return whitespace
 
-def extract_person():
+def extract_person(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -121,7 +122,7 @@ def extract_person():
 		except KeyError:
 			pass
 
-def extract_author():
+def extract_author(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/book/author/works_written':
@@ -187,7 +188,7 @@ def extract_author():
 		except KeyError:
 			pass
 
-def extract_actor():
+def extract_actor(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/film/actor/film':
@@ -220,7 +221,7 @@ def extract_actor():
 			pass
 
 
-def extract_businessperson():
+def extract_businessperson(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/organization/organization_founder/organizations_founded':
@@ -339,12 +340,11 @@ def extract_businessperson():
 
 					print '\t' + "|                |" + organization + whitespace1 + '| ' + role + whitespace2 + '| ' + title + whitespace3 + '| ' + from_to + whitespace4 + '|' + '\t'
 
-
 		except KeyError:
 			pass
 	
 
-def extract_league():
+def extract_league(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -419,7 +419,7 @@ def extract_league():
 		except KeyError:
 			pass	
 
-def extract_sportsteam():
+def extract_sportsteam(topic, temp):
 	for property in topic['property']:
 		try:
 			if property == '/type/object/name':
@@ -591,84 +591,225 @@ def extract_sportsteam():
 			pass
 
 
-entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':'Actor', '/tv/tv_actor':'Actor', '/organization/organization_founder':'BusinessPerson', '/business/board_member':'BusinessPerson', '/sports/sports_league':'League', '/sports/sports_team':'SportsTeam', '/sports/professional_sports_team':'SportsTeam'}
+def main():
 
-# utilize search API to get 'mid'
-mid = []
-api_key = open("api_key").read()
-query = 'Jackson'
-search_url = 'https://www.googleapis.com/freebase/v1/search'
-params = {
-        'query': query,
-        'key': api_key
-}
-url = search_url + '?' + urllib.urlencode(params)
-response = json.loads(urllib.urlopen(url).read())
-for result in response['result']:
-	mid.append(str(result['mid']))
+   	try:
+   		opts, args = getopt.getopt(sys.argv[1:], "key:q:f:t:", ["query=", "file=", "type="])
 
-# pass 'mid' to topic API
-topic_url = 'https://www.googleapis.com/freebase/v1/topic'
-found = False
-count = 0
-type_set = set()
-topic_id = mid[0]
+   		opt = []
+   		arg = []
+   		for o, a in opts:
+   			if ('-k', '') in opts and ('-e', '') in opts and o == '-y':
+   				opt.append('-key')
+   				arg.append(a)
+   			if o == '-q':
+   				opt.append(o)
+   				arg.append(a)
+   			if o == '-f':
+   				opt.append(o)
+   				arg.append(a)
+   			if o == '-t':
+   				opt.append(o)
+   				arg.append(a)
+   		
+   		if '-key' in opt:
+   			key = arg[opt.index('-key')]
+   			if '-q' in opt and '-t' in opt:
+   				query = arg[opt.index('-q')]
+   				qtype = arg[opt.index('-t')]
 
-while found == False and count < len(mid):
-	topic_id = mid[count]
-	print mid[count]
-	params = {
-	  'key': api_key,
-	  'filter': 'all'
-	}
-	url = topic_url + topic_id + '?' + urllib.urlencode(params)
-	topic = json.loads(urllib.urlopen(url).read())
+   				if qtype == 'infobox':
+   					entity_dic = {'/people/person':'Person', '/book/author':'Author', '/film/actor':'Actor', '/tv/tv_actor':'Actor', '/organization/organization_founder':'BusinessPerson', '/business/board_member':'BusinessPerson', '/sports/sports_league':'League', '/sports/sports_team':'SportsTeam', '/sports/professional_sports_team':'SportsTeam'}
 
-	# get 'id' in '/type/object/type'
-	for property in topic['property']:
-		# top level of '/type/object/type' property
-		if property == '/type/object/type':
-			for value in topic['property'][property]['values']:
-				if entity_dic.has_key(str(value['id'])):
-					found = True
-					type_set.add(entity_dic.get(str(value['id'])))
+					# utilize search API to get 'mid'
+					mid = []
+					api_key = key
+					search_url = 'https://www.googleapis.com/freebase/v1/search'
+					params = {
+					        'query': query,
+					        'key': api_key
+					}
+					url = search_url + '?' + urllib.urlencode(params)
+					response = json.loads(urllib.urlopen(url).read())
+					for result in response['result']:
+						mid.append(str(result['mid']))
 
-			if not found:
-				count += 1
+					# pass 'mid' to topic API
+					topic_url = 'https://www.googleapis.com/freebase/v1/topic'
+					found = False
+					count = 0
+					type_set = set()
+					topic_id = mid[0]
 
-temp = '\t' + " -------------------------------------------------------------------------------------------------- " + '\t'
-print temp
+					while found == False and count < len(mid):
+						topic_id = mid[count]
+						print mid[count]
+						params = {
+						  'key': api_key,
+						  'filter': 'all'
+						}
+						url = topic_url + topic_id + '?' + urllib.urlencode(params)
+						topic = json.loads(urllib.urlopen(url).read())
 
-line = query + '('
+						# get 'id' in '/type/object/type'
+						for property in topic['property']:
+							# top level of '/type/object/type' property
+							if property == '/type/object/type':
+								for value in topic['property'][property]['values']:
+									if entity_dic.has_key(str(value['id'])):
+										found = True
+										type_set.add(entity_dic.get(str(value['id'])))
 
-for item in type_set:
-	line += item + ", "
+								if not found:
+									count += 1
 
-line = line[:-2]
+					temp = '\t' + " -------------------------------------------------------------------------------------------------- " + '\t'
+					print temp
 
-line += ')'
+					line = query + '('
 
-whitespace = ''
+					for item in type_set:
+						line += item + ", "
 
-for i in range((len(temp) - len(line) -4)/2):
-	whitespace += ' ' 
+					line = line[:-2]
 
-line = '\t' + '|' + whitespace + line + whitespace + '|' + '\t'
+					line += ')'
 
-print line
+					whitespace = ''
 
-for item in type_set:
-	if item == 'Person':
-		extract_person()
-	if item == 'Actor':
-		extract_actor()
-	if item == 'Author':
-		extract_author()
-	if item == 'BusinessPerson':
-		extract_businessperson()
-	if item == 'League':
-		extract_league()
-	if item == 'SportsTeam':
-		extract_sportsteam()
+					for i in range((len(temp) - len(line) -4)/2):
+						whitespace += ' ' 
 
-print '\t' + " --------------------------------------------------------------------------------------------------"
+					line = '\t' + '|' + whitespace + line + whitespace + '|' + '\t'
+
+					print line
+
+					for item in type_set:
+						if item == 'Person':
+							extract_person(topic, temp)
+						if item == 'Actor':
+							extract_actor(topic, temp)
+						if item == 'Author':
+							extract_author(topic, temp)
+						if item == 'BusinessPerson':
+							extract_businessperson(topic, temp)
+						if item == 'League':
+							extract_league(topic, temp)
+						if item == 'SportsTeam':
+							extract_sportsteam(topic, temp)
+
+					print '\t' + " --------------------------------------------------------------------------------------------------"
+
+   				elif qtype == 'question':
+   					# User input question in the format "Who created [X]?"
+					question = query.split()
+					length = len(question)
+					result_list = []
+
+					# Check input question's format
+					if (question[0].lower() != 'who' or question[1].lower() != 'created' or question[-1][-1] != '?'):
+						print 'Wrong input format!'
+						exit(1)
+
+					# Get [X]
+					search_term = ' '.join(question[2:])
+					search_term = search_term[:-1]
+					api_key = key
+					service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
+
+					query = [{
+						"/book/author/works_written": [{
+							"a:name": None,
+							"name~=": search_term
+						}],
+						"id":   None,
+						"name": None,
+						"type": "/book/author"
+					}]
+					params = {
+						'query': json.dumps(query),
+						'key': api_key
+					}
+					url = service_url + '?' + urllib.urlencode(params)
+					response = json.loads(urllib.urlopen(url).read())
+
+					# Format output result in the format "A (as XXX) created <X1>, <X2>, ... and <Xn>."
+					for author in response['result']:
+						tmp_list = []
+						tmp_str = ''
+						tmp_length = 0
+						name = author['name']
+						for book in author["/book/author/works_written"]:
+							tmp_list.append(book['a:name'])
+						# author_dict[name] = tmp_list
+						tmp_length = len(tmp_list)
+						tmp_str = '%s (as Author) created <%s>' % (name, tmp_list[0])
+						tmp_length = tmp_length - 1
+						while (tmp_length > 1):
+							tmp_str = tmp_str + ', <%s>' % tmp_list[len(tmp_list) - tmp_length]
+							tmp_length = tmp_length - 1
+						if (tmp_length > 0):
+							tmp_str = tmp_str + ' and <%s>.' % tmp_list[len(tmp_list) - tmp_length]
+						result_list.append(tmp_str)
+
+					# Treat X as substring of a company name, search its businessperson's name
+					query = [{
+						"/organization/organization_founder/organizations_founded": [{
+							"a:name": None,
+							"name~=": search_term
+						}],
+						"id": None,
+						"name": None,
+						"type": "/organization/organization_founder"
+					}]
+					params = {
+						'query': json.dumps(query),
+						'key': api_key
+					}
+					url = service_url + '?' + urllib.urlencode(params)
+					response = json.loads(urllib.urlopen(url).read())
+
+					# Format output result in the format "A (as XXX) created <X1>, <X2>, ... and <Xn>."
+					for businessperson in response['result']:
+						tmp_list = []
+						tmp_str = ''
+						tmp_length = 0
+						name = businessperson['name']
+						for company in businessperson["/organization/organization_founder/organizations_founded"]:
+							tmp_list.append(company['a:name'])
+						# business_dict[name] = tmp_list
+						tmp_length = len(tmp_list)
+						tmp_str = '%s (as BusinessPerson) created <%s>' % (name, tmp_list[0])
+						tmp_length = tmp_length - 1
+						while (tmp_length > 1):
+							tmp_str = tmp_str + ', <%s>' % tmp_list[len(tmp_list) - tmp_length]
+							tmp_length = tmp_length - 1
+						if (tmp_length > 0):
+							tmp_str = tmp_str + ' and <%s>.' % tmp_list[len(tmp_list) - tmp_length]
+						result_list.append(tmp_str)
+
+					# Sort lines alphabetically by <Name>
+					result_list.sort()
+
+					# Display result
+					count = 0
+					for each_result in result_list:
+						count += 1
+						print str(count) + ". " + each_result
+
+   				else:
+   					print "Please input infobox|question"
+
+   			if '-f' in opt and '-t' in opt:
+   				filen = arg[opt.index('-f')]
+   				qtype = arg[opt.index('-t')]
+
+   		else:
+   			print "Please input the key!"
+
+	except getopt.GetoptError:
+		print "Wrong Options!"
+
+if __name__ == "__main__":
+    main()
+

@@ -2,8 +2,8 @@ import json
 import urllib
 
 # User input question in the format "Who created [X]?"
-question = raw_input('Input your question like "Who created [X]?", X is a book name or a company name: ')
-question = question.split()
+question_str = raw_input('Input your question like "Who created [X]?", X is a book name or a company name: ')
+question = question_str.split()
 length = len(question)
 result_list = []
 
@@ -17,6 +17,21 @@ search_term = ' '.join(question[2:])
 search_term = search_term[:-1]
 api_key = open("api_key").read()
 service_url = 'https://www.googleapis.com/freebase/v1/mqlread'
+
+# temp = '\t' + " -------------------------------------------------------------------------------------------------- " + '\t'
+# print temp
+
+# whitespace = ''
+
+# for i in range((len(temp) - len(question_str) - 4)/2):
+#   whitespace += ' ' 
+
+# if (len(temp) - len(question_str) - 4) % 2 == 0:
+#   question_str = '\t' + '|' + whitespace + question_str + whitespace + '|' + '\t'
+# else:
+#   question_str = '\t' + '|' + whitespace + question_str + whitespace + ' ' + '|' + '\t'
+
+# print question_str
 
 # Treat X as substring of a book name, search its author's name
 query = [{
@@ -35,6 +50,9 @@ params = {
 url = service_url + '?' + urllib.urlencode(params)
 response = json.loads(urllib.urlopen(url).read())
 
+author_dict = {}
+business_dict = {}
+
 # Format output result in the format "A (as XXX) created <X1>, <X2>, ... and <Xn>."
 for author in response['result']:
   tmp_list = []
@@ -43,6 +61,7 @@ for author in response['result']:
   name = author['name']
   for book in author["/book/author/works_written"]:
     tmp_list.append(book['a:name'])
+  author_dict[name] = tmp_list
   tmp_length = len(tmp_list)
   tmp_str = '%s (as Author) created <%s>' % (name, tmp_list[0])
   tmp_length = tmp_length - 1
@@ -78,6 +97,7 @@ for businessperson in response['result']:
   name = businessperson['name']
   for company in businessperson["/organization/organization_founder/organizations_founded"]:
     tmp_list.append(company['a:name'])
+  business_dict[name] = tmp_list
   tmp_length = len(tmp_list)
   tmp_str = '%s (as BusinessPerson) created <%s>' % (name, tmp_list[0])
   tmp_length = tmp_length - 1
@@ -92,5 +112,7 @@ for businessperson in response['result']:
 result_list.sort()
 
 # Display result
+count = 0
 for each_result in result_list:
-  print each_result
+  count += 1
+  print str(count) + ". " + each_result
