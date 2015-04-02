@@ -1,6 +1,6 @@
 1. Team:
-Peng Song (ps2839)
-Lan Yang (ly2331)
+Peng Song
+Lan Yang
 
 2. Files:
 info_query.py 			#python program
@@ -162,7 +162,3 @@ result and display it in proper format. Queries are as below.
   "name": null,
   "type": "/organization/organization_founder"
 }]
-
-5. Freebase API Key:
-AIzaSyCOPsTPKPOt4g8CJtMVC41bsgoaTcJR1L8
-10 requests/second per user
